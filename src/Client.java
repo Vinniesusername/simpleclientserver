@@ -29,7 +29,7 @@ public class Client  // this class deals with all socket requests to Server.java
         Client.getInstance();
         try
         {
-            handler.listenToServer();
+            handler.connect();
         }
         catch (Exception e)
         {
