@@ -1,7 +1,7 @@
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
-import java.net.Socket;
+
 
 
 public class Client  // this class deals with all socket requests to Server.java
@@ -27,12 +27,20 @@ public class Client  // this class deals with all socket requests to Server.java
     public static void main(String[] args)
     {
         Client.getInstance();
-        handler.connect();
+        try
+        {
+            handler.listenToServer();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         //System.out.println(handler.askForMagicNumber());
 
     }
 
-    public int connect() // connects handler to server returns a status code
+    public int connect() throws IOException // connects handler to server returns a status code
     {
         if(handler.cs != null)
         {
@@ -59,9 +67,9 @@ public class Client  // this class deals with all socket requests to Server.java
             System.out.println(handler.out.checkError());
 
             // write to socket to test it
-            //handler.out.println("TEST")
-            //handler.out.println();
-            //handler.out.flush();
+            handler.out.println("TEST");
+            handler.out.println();
+            handler.out.flush();
 
             //check for error
             if(handler.out.checkError())
@@ -82,8 +90,13 @@ public class Client  // this class deals with all socket requests to Server.java
             int s = disconnect();
             if(s != 0)
                 System.out.println("disconnect issuse");
-            connected = false;
             status = -2;
+        }
+        finally
+        {
+            handler.cs.close();
+            connected = false;
+
         }
 
         if(!connected)
@@ -111,6 +124,38 @@ public class Client  // this class deals with all socket requests to Server.java
             e.printStackTrace();
         }
         return r;
+    }
+
+    public void listenToServer()
+    {
+        try
+        {
+            handler.cs = (SSLSocket) handler.sslf.createSocket("localhost", 4422);
+            handler.cs.setEnabledProtocols(protocols);
+            //enable only the protocols and ciphers that i want used
+            handler.cs.setEnabledProtocols(protocols);
+            handler.cs.setEnabledCipherSuites(ciphers);
+            //set input and output streams of socket
+            handler.out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(handler.cs.getOutputStream())));
+            handler.in = new BufferedReader(new InputStreamReader(handler.cs.getInputStream()));
+            System.out.println(handler.out.checkError());
+
+            while(true)
+            {
+                while(handler.in.ready())
+                {
+                    String q = handler.in.readLine();
+                    System.out.println(q);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+
+
     }
 
 
