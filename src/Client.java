@@ -30,14 +30,12 @@ public class Client  // this class deals with all socket requests to Server.java
         try
         {
             handler.connect();
+            //System.out.println(handler.askForMagicNumber());
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-
-        //System.out.println(handler.askForMagicNumber());
-
     }
 
     public int connect() throws IOException // connects handler to server returns a status code
@@ -64,20 +62,22 @@ public class Client  // this class deals with all socket requests to Server.java
             handler.cs.setEnabledCipherSuites(ciphers);
             //set input and output streams of socket
             handler.out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(handler.cs.getOutputStream())));
+            handler.in = new BufferedReader(new InputStreamReader(handler.cs.getInputStream()));
             System.out.println(handler.out.checkError());
 
             // write to socket to test it
-            handler.out.println("TEST");
+            handler.out.println("TESTC");
             handler.out.println();
             handler.out.flush();
 
+
             //check for error
-            if(handler.out.checkError())
+            if(handler.out.checkError() == false)
             {
                 throw new Exception("java.io.printwriter error");
             }
             //set up input stream
-            handler.in = new BufferedReader(new InputStreamReader(handler.cs.getInputStream()));
+
             status = 0;
             connected = true;
 
